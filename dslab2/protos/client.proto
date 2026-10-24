@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pbft;
+
+// Import the common message types from pbft.proto
+import "pbft.proto";
+
+// Client-only service - only handles replies from nodes
+service ClientService {
+  rpc SendReply(Reply) returns (Empty);
+}

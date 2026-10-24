@@ -1,0 +1,23 @@
+{
+  "num_accounts": 1000,
+  "initial_savings_balance": 10000,
+  "initial_checking_balance": 10000,
+  "warmup_seconds": 30,
+  "run_seconds": 60,
+  "num_clients": 4,
+  "txn_mix": {
+    "Bal": 0.4,
+    "WC": 0.25,
+    "DC": 0.15,
+    "TS": 0.15,
+    "Amg": 0.05
+  },
+  "amount_min": 1,
+  "amount_max": 1000,
+  "hot_fraction": 0.01,
+  "hot_probability": 0.8,
+  "num_partitions": 1,
+  "num_regions": 1,
+  "multi_partition_prob": 0.1,
+  "multi_region_prob": 0.05
+}

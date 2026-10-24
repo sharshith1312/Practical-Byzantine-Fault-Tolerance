@@ -1,0 +1,7 @@
+*.md1
+.DS_Store 
+.venv/
+logs/*.log
+__pycache__/
+
+smallbank_benchmark.py

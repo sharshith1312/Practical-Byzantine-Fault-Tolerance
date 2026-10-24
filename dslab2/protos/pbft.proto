@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package pbft;
+
+message Empty {}
+
+message StringResponse {
+  string data = 1;
+}
+
+enum OperationType {
+  TRANSFER = 0;
+  BALANCE = 1;
+}
+
+enum Status {
+  X = 0;
+  PP = 1;
+  P = 2;
+  C = 3;
+  E = 4;
+}
+
+message Signature {
+  string signer = 1;
+  bytes sig = 2;
+}
+
+message Request {
+  OperationType type = 1;
+  string sender = 2;
+  string receiver = 3;
+  int64 amount = 4;
+  int64 timestamp = 5;
+  Signature signature = 6;
+}
+
+message PrePrepare {
+  int32 view = 1;
+  int64 seq = 2;
+  bytes digest = 3;
+  Request request = 4;
+  Signature signature = 5;
+}
+
+message Prepare {
+  int32 view = 1;
+  int64 seq = 2;
+  bytes digest = 3;
+  string node_id = 4;
+  Signature signature = 5;
+}
+
+message AggregatedPrepare {
+  int32 view = 1;
+  int64 seq = 2;
+  bytes digest = 3;
+  repeated Signature signatures = 4;
+  Signature collector_signature = 5;
+  bytes threshold_signature = 6;
+  repeated string signer_ids = 7;
+  bool use_threshold = 8;
+}
+
+message Commit {
+  int32 view = 1;
+  int64 seq = 2;
+  bytes digest = 3;
+  string node_id = 4;
+  Signature signature = 5;
+}
+
+message AggregatedCommit {
+  int32 view = 1;
+  int64 seq = 2;
+  bytes digest = 3;
+  repeated Signature signatures = 4;
+  Signature collector_signature = 5;
+  // Threshold signature fields (optional, used when TSS is enabled)
+  bytes threshold_signature = 6;
+  repeated string signer_ids = 7;
+  bool use_threshold = 8;
+}
+
+message Reply {
+  int32 view = 1;
+  int64 timestamp = 2;
+  string client_id = 3;
+  string node_id = 4;
+  string result = 5;
+  Signature signature = 6;
+}
+
+message PreparedRequest {
+  int64 seq = 1;
+  bytes digest = 2;
+  int32 view = 3;
+}
+
+message ViewChange {
+  int32 new_view = 1;
+  int64 last_seq = 2;
+  repeated PreparedRequest prepared = 3;
+  string node_id = 4;
+  Signature signature = 5;
+  CheckpointCertificate stable_checkpoint = 6;
+}
+
+message NewView {
+  int32 view = 1;
+  repeated ViewChange view_changes = 2;
+  repeated PrePrepare pre_prepares = 3;
+  Signature signature = 4;
+}
+
+message Checkpoint {
+  int64 sequence_number = 1;
+  string state_digest = 2;
+  string node_id = 3;
+  Signature signature = 4;
+}
+
+message CheckpointCertificate {
+  int64 sequence_number = 1;
+  string state_digest = 2;
+  repeated Checkpoint checkpoints = 3;
+}
+
+message ModeRequest {
+  bool live = 1;
+  bool byzantine = 2;
+  string attack = 3;
+}
+
+message SeqRequest {
+  int64 seq = 1;
+}
+
+service PbftService {
+  rpc SendRequest(Request) returns (StringResponse);
+  rpc SendPrePrepare(PrePrepare) returns (Prepare);
+  rpc SendAggregatedPrepare(AggregatedPrepare) returns (Commit);
+  rpc SendAggregatedCommit(AggregatedCommit) returns (Empty);
+  rpc SendReply(Reply) returns (Empty);
+  rpc SendViewChange(ViewChange) returns (Empty);
+  rpc SendNewView(NewView) returns (Empty);
+  rpc SendCheckpoint(Checkpoint) returns (Empty);
+  rpc SetMode(ModeRequest) returns (Empty);
+  rpc Reset(Empty) returns (Empty);
+  rpc PrintLog(Empty) returns (StringResponse);
+  rpc PrintDB(Empty) returns (StringResponse);
+  rpc PrintStatus(SeqRequest) returns (StringResponse);
+  rpc PrintView(Empty) returns (StringResponse);
+}
